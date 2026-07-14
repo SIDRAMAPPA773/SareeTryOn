@@ -156,7 +156,7 @@ Developed as part of an internship project by:
 
 - **Sidramappa**
 - **Sagar**
-- *(Add remaining team members)*
+
 
 ---
 

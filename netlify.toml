@@ -1,0 +1,8 @@
+[build]
+  base = "client"
+  command = "npm run build"
+  publish = "dist"
+
+# Use Netlify Site settings to keep API keys and secrets private.
+# Set VITE_API_URL to your deployed backend URL after the backend is live.
+# Do not store sensitive secrets like database connection strings in the repository.

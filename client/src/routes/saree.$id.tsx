@@ -5,8 +5,8 @@ import { SiteNav } from "@/views/components/site-nav";
 import { getSaree, formatPrice } from "@/models/data/sarees";
 
 export const Route = createFileRoute("/saree/$id")({
-  loader: ({ params }) => {
-    const saree = getSaree(params.id);
+  loader: async ({ params }) => {
+    const saree = await getSaree(params.id);
     if (!saree) throw notFound();
     return { saree };
   },
@@ -161,7 +161,7 @@ function SareeDetail() {
             </Link>
 
             <p className="text-center text-[10px] uppercase tracking-[0.3em] text-muted-foreground/60 mt-2">
-              Powered by on-device AI · Your photo stays with you
+              Powered by Cloud AI · Your photo is processed securely
             </p>
           </div>
         </div>

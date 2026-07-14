@@ -2,19 +2,24 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { SiteNav } from "@/views/components/site-nav";
-import { sarees, categories, formatPrice } from "@/models/data/sarees";
+import { fetchSarees, categories, formatPrice } from "@/models/data/sarees";
 import heroImg from "@/assets/hero.jpg";
 
 export const Route = createFileRoute("/")({
+  loader: async () => {
+    const sarees = await fetchSarees();
+    return { sarees };
+  },
   component: Index,
 });
 
 function Index() {
-  const [active, setActive] = useState<string>("Catalog");
+  const { sarees } = Route.useLoaderData();
+  const [active, setActive] = useState<string>("All");
 
   const filtered = useMemo(
-    () => (active === "Catalog" ? sarees : sarees.filter((s) => s.category === active)),
-    [active],
+    () => (active === "All" ? sarees : sarees.filter((s) => s.category === active)),
+    [active, sarees],
   );
 
   return (

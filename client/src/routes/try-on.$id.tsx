@@ -4,11 +4,12 @@ import { ArrowLeft, Camera, Upload, Sparkles, RefreshCw, Loader2 } from "lucide-
 import { SiteNav } from "@/views/components/site-nav";
 import { getSaree } from "@/models/data/sarees";
 import { saveEntry, newId } from "@/models/lib/tryon-store";
-import { composeTryOn } from "@/controllers/lib/composite";
+import { API_BASE_URL } from "@/config/api";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/try-on/$id")({
-  loader: ({ params }) => {
-    const saree = getSaree(params.id);
+  loader: async ({ params }) => {
+    const saree = await getSaree(params.id);
     if (!saree) throw notFound();
     return { saree };
   },
@@ -87,40 +88,68 @@ function TryOn() {
     reader.readAsDataURL(f);
   }
 
+  function dataURLtoFile(dataurl: string, filename: string) {
+    const arr = dataurl.split(",");
+    const mime = arr[0].match(/:(.*?);/)?.[1] || "image/jpeg";
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  }
+
   async function submit() {
     if (!photo) return;
     setMode("processing");
     setProgress(0);
-    const start = Date.now();
-    const total = 3200;
-    let resultPhoto: string | null = null;
-    // Kick off the real composite in parallel with the progress animation
-    const composePromise = composeTryOn(photo, saree.image)
-      .then((r) => {
-        resultPhoto = r;
-      })
-      .catch(() => {
-        resultPhoto = photo;
-      });
+    
+    // Simulate progress while waiting for backend
     const tick = setInterval(() => {
-      const p = Math.min(100, ((Date.now() - start) / total) * 100);
-      setProgress(p);
-      if (p >= 100 && resultPhoto) {
-        clearInterval(tick);
-        const id = newId();
-        saveEntry({
-          id,
-          sareeId: saree.id,
-          sareeName: saree.name,
-          sareeImage: saree.image,
-          userPhoto: photo,
-          resultPhoto,
-          createdAt: Date.now(),
-        });
-        navigate({ to: "/result/$id", params: { id } });
+      setProgress((prev) => {
+        if (prev >= 95) return prev;
+        return prev + (95 - prev) * 0.05;
+      });
+    }, 500);
+
+    try {
+      const file = dataURLtoFile(photo, "user.jpg");
+      const formData = new FormData();
+      formData.append("userImage", file);
+      formData.append("sareeImageUrl", saree.image);
+
+      const res = await fetch(`${API_BASE_URL}/tryon`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const json = await res.json();
+      
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || "Failed to generate try-on");
       }
-    }, 90);
-    await composePromise;
+
+      clearInterval(tick);
+      setProgress(100);
+
+      const resultPhoto = json.data.generatedImageUrl;
+      const id = newId();
+      saveEntry({
+        id,
+        sareeId: saree.id,
+        sareeName: saree.name,
+        sareeImage: saree.image,
+        userPhoto: photo, // Or json.data.userImageUrl if we want to save remote
+        resultPhoto,
+        createdAt: Date.now(),
+      });
+      navigate({ to: "/result/$id", params: { id } });
+    } catch (err: any) {
+      clearInterval(tick);
+      setMode("preview");
+      toast.error(err.message || "An error occurred during generation.");
+    }
   }
 
   return (

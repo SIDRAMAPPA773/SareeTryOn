@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { Menu, Sparkles, History, Home, X } from "lucide-react";
+import { Menu, Sparkles, History, Home, X, Lock } from "lucide-react";
 
 export function SiteNav() {
   const [open, setOpen] = useState(false);
@@ -72,6 +72,13 @@ export function SiteNav() {
               icon={<History className="h-4 w-4" />}
               label="Try-On History"
               hint="Your virtual fittings"
+            />
+            <DrawerLink
+              to="/admin/login"
+              onClose={() => setOpen(false)}
+              icon={<Lock className="h-4 w-4" />}
+              label="Admin Login"
+              hint="Manage store content"
             />
           </nav>
 

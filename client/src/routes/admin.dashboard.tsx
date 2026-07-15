@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { API_BASE_URL } from '@/config/api';
@@ -65,7 +65,7 @@ function AdminDashboard() {
             <div className="rounded border p-4 shadow-sm">
               <h3 className="text-xl font-semibold">Manage Sarees</h3>
               <p className="mt-2 text-sm text-gray-500">Upload, edit, and delete saree designs.</p>
-              <button className="mt-4 rounded bg-primary px-4 py-2 text-white">Go to Sarees</button>
+              <Link to="/" className="mt-4 inline-block rounded bg-primary px-4 py-2 text-white hover:bg-primary/90">Go to Sarees</Link>
             </div>
             {/* Additional admin sections can go here */}
           </div>

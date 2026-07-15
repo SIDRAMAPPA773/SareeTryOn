@@ -125,6 +125,8 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+import { Toaster } from 'sonner';
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
@@ -176,6 +178,7 @@ function RootComponent() {
       <div className="pointer-events-none fixed inset-0 z-[-1] overflow-hidden bg-background" />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <Toaster position="top-center" richColors />
       <Footer />
     </QueryClientProvider>
   );

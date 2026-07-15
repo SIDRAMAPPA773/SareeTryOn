@@ -172,7 +172,7 @@ function SuperadminDashboard() {
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="mx-auto max-w-6xl rounded-lg bg-white p-6 shadow-md">
         <div className="flex items-center justify-between border-b pb-4">
-          <h1 className="text-3xl font-bold text-gray-900">Superadmin Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Super Admin Dashboard</h1>
           <button 
             onClick={handleLogout}
             className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"

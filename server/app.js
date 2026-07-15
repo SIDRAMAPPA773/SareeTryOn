@@ -18,6 +18,9 @@ const embedRoutes = require('./routes/embedRoutes');
 
 const app = express();
 
+// Trust proxy required for Render and secure cookies
+app.set('trust proxy', 1);
+
 // Security Headers
 app.use(helmet({
   crossOriginResourcePolicy: false, // allow loading images cross-origin
@@ -46,6 +49,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000 // 1 day
   }
 }));

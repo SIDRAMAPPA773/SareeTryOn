@@ -16,7 +16,7 @@ function SuperadminDashboard() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/auth/me`);
+        const response = await fetch(`${API_BASE_URL}/auth/me`, { credentials: 'include' });
         const data = await response.json();
         
         if (data.success && data.admin.role === 'SUPERADMIN') {
@@ -37,7 +37,7 @@ function SuperadminDashboard() {
 
   const fetchAdmins = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/superadmin/admins`);
+      const response = await fetch(`${API_BASE_URL}/superadmin/admins`, { credentials: 'include' });
       const data = await response.json();
       if (data.success) {
         setAdminsList(data.data);
@@ -49,7 +49,7 @@ function SuperadminDashboard() {
 
   const handleLogout = async () => {
     try {
-      await fetch(`${API_BASE_URL}/auth/logout`, { method: 'POST' });
+      await fetch(`${API_BASE_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
       toast.success('Logged out successfully');
       navigate({ to: '/admin/login' });
     } catch (error) {

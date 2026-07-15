@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { API_BASE_URL } from '@/config/api';
 
 export const Route = createFileRoute('/admin/dashboard')({
   component: AdminDashboard,
@@ -14,7 +15,7 @@ function AdminDashboard() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/me');
+        const response = await fetch(`${API_BASE_URL}/auth/me`);
         const data = await response.json();
         
         if (data.success && (data.admin.role === 'ADMIN' || data.admin.role === 'SUPERADMIN')) {
@@ -34,7 +35,7 @@ function AdminDashboard() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await fetch(`${API_BASE_URL}/auth/logout`, { method: 'POST' });
       toast.success('Logged out successfully');
       navigate({ to: '/admin/login' });
     } catch (error) {

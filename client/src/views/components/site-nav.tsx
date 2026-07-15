@@ -33,7 +33,8 @@ export function SiteNav() {
       {/* Drawer */}
       <div
         className={`fixed inset-0 z-50 transition ${open ? "pointer-events-auto" : "pointer-events-none"}`}
-        aria-hidden={!open}
+        // @ts-ignore
+        inert={!open ? "" : undefined}
       >
         <div
           onClick={() => setOpen(false)}

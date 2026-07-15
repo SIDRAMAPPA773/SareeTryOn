@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { SiteNav } from '@/views/components/site-nav';
+import { API_BASE_URL } from '@/config/api';
 
 export const Route = createFileRoute('/admin/login')({
   component: AdminLogin,
@@ -18,7 +19,7 @@ function AdminLogin() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

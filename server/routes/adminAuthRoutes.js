@@ -1,22 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const { login, logout, me, createAdmin } = require('../controllers/adminAuthController');
-const { requireAdminAuth } = require('../middleware/adminAuthMiddleware');
+const { login, logout, me } = require('../controllers/adminAuthController');
+const { requireAuth } = require('../middleware/adminAuthMiddleware');
 
-// @route   POST /admin/auth/login
+// @route   POST /api/auth/login
 // @desc    Admin login
 router.post('/login', login);
 
-// @route   POST /admin/auth/logout
+// @route   POST /api/auth/logout
 // @desc    Admin logout
-router.post('/logout', requireAdminAuth, logout);
+router.post('/logout', requireAuth, logout);
 
-// @route   GET /admin/auth/me
+// @route   GET /api/auth/me
 // @desc    Get current admin profile
-router.get('/me', requireAdminAuth, me);
-
-// @route   POST /admin/auth/create
-// @desc    Create new admin (Super Admin only, or public if no admins exist)
-router.post('/create', createAdmin);
+router.get('/me', requireAuth, me);
 
 module.exports = router;

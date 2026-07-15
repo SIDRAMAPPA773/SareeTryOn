@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { requireAdminAuth, requireSuperAdminAuth } = require('../middleware/adminAuthMiddleware');
+const { requireAdmin, requireSuperAdmin } = require('../middleware/adminAuthMiddleware');
 const {
   getDashboardStats,
   listUsers,
@@ -19,8 +19,8 @@ const {
   getActivityLogs
 } = require('../controllers/jewelryAdminController');
 
-// All admin routes require local admin JWT authentication
-router.use(requireAdminAuth);
+// All admin routes require session admin authentication
+router.use(requireAdmin);
 
 // @route   GET /api/admin/jewelry/dashboard
 router.get('/dashboard', getDashboardStats);
@@ -48,9 +48,9 @@ router.put('/settings/:key', updateSetting);
 
 // Plans CRUD (Super Admin only for modifying)
 router.get('/plans', getPlans);
-router.post('/plans', requireSuperAdminAuth, createPlan);
-router.put('/plans/:plan_id', requireSuperAdminAuth, updatePlan);
-router.delete('/plans/:plan_id', requireSuperAdminAuth, deletePlan);
+router.post('/plans', requireSuperAdmin, createPlan);
+router.put('/plans/:plan_id', requireSuperAdmin, updatePlan);
+router.delete('/plans/:plan_id', requireSuperAdmin, deletePlan);
 
 // Storage Audits
 router.post('/storage/verify', verifyStorage);

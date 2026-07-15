@@ -1,48 +1,35 @@
-const jwt = require('jsonwebtoken');
 const AdminUser = require('../models/AdminUser');
 
-const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'changeme-generate-with-openssl-rand-hex-32';
-const ADMIN_COOKIE_NAME = 'admin_token';
-
-const requireAdminAuth = async (req, res, next) => {
+const requireAuth = async (req, res, next) => {
   try {
-    const token = req.cookies[ADMIN_COOKIE_NAME];
-    if (!token) {
+    if (!req.session || !req.session.adminId) {
       return res.status(401).json({
         success: false,
-        message: 'Admin session required — please log in at /admin/login'
+        message: 'Session required — please log in at /admin/login'
       });
     }
 
-    let decoded;
-    try {
-      decoded = jwt.verify(token, ADMIN_JWT_SECRET);
-    } catch (err) {
-      return res.status(401).json({
-        success: false,
-        message: `Admin token invalid or expired: ${err.message}`
-      });
-    }
-
-    if (decoded.type !== 'admin') {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid admin token type'
-      });
-    }
-
-    // Double check admin user exists in DB
-    const adminUser = await AdminUser.findById(decoded.sub);
+    const adminUser = await AdminUser.findById(req.session.adminId);
     if (!adminUser) {
+      req.session.destroy();
       return res.status(401).json({
         success: false,
         message: 'Admin user no longer exists'
       });
     }
 
+    if (!adminUser.isActive) {
+      req.session.destroy();
+      return res.status(403).json({
+        success: false,
+        message: 'Admin account is disabled'
+      });
+    }
+
     req.admin = {
       id: adminUser._id,
       username: adminUser.username,
+      email: adminUser.email,
       role: adminUser.role
     };
 
@@ -52,10 +39,23 @@ const requireAdminAuth = async (req, res, next) => {
   }
 };
 
-const requireSuperAdminAuth = async (req, res, next) => {
-  requireAdminAuth(req, res, (err) => {
+const requireAdmin = async (req, res, next) => {
+  requireAuth(req, res, (err) => {
     if (err) return next(err);
-    if (req.admin.role !== 'SUPER_ADMIN') {
+    if (req.admin.role !== 'ADMIN' && req.admin.role !== 'SUPERADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Admin access required'
+      });
+    }
+    next();
+  });
+};
+
+const requireSuperAdmin = async (req, res, next) => {
+  requireAuth(req, res, (err) => {
+    if (err) return next(err);
+    if (req.admin.role !== 'SUPERADMIN') {
       return res.status(403).json({
         success: false,
         message: 'Super Admin access required'
@@ -66,8 +66,7 @@ const requireSuperAdminAuth = async (req, res, next) => {
 };
 
 module.exports = {
-  requireAdminAuth,
-  requireSuperAdminAuth,
-  ADMIN_JWT_SECRET,
-  ADMIN_COOKIE_NAME
+  requireAuth,
+  requireAdmin,
+  requireSuperAdmin
 };

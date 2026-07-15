@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react';
@@ -89,6 +89,13 @@ function AdminLogin() {
                     <Eye className="h-5 w-5" aria-hidden="true" />
                   )}
                 </button>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="text-sm">
+                <Link to="/admin/forgot-password" className="font-medium text-primary hover:text-primary/90">
+                  Forgot your password?
+                </Link>
               </div>
             </div>
             <button

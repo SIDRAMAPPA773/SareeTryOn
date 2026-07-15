@@ -39,7 +39,9 @@ const AdminUserSchema = new mongoose.Schema({
   lockout_until: {
     type: Date,
     default: null
-  }
+  },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date
 }, {
   timestamps: true
 });

@@ -12,8 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TryOnIdRouteImport } from './routes/try-on.$id'
+import { Route as SuperadminDashboardRouteImport } from './routes/superadmin.dashboard'
 import { Route as SareeIdRouteImport } from './routes/saree.$id'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
+import { Route as AdminResetPasswordRouteImport } from './routes/admin.reset-password'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminForgotPasswordRouteImport } from './routes/admin.forgot-password'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
@@ -30,6 +35,11 @@ const TryOnIdRoute = TryOnIdRouteImport.update({
   path: '/try-on/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SuperadminDashboardRoute = SuperadminDashboardRouteImport.update({
+  id: '/superadmin/dashboard',
+  path: '/superadmin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SareeIdRoute = SareeIdRouteImport.update({
   id: '/saree/$id',
   path: '/saree/$id',
@@ -40,43 +50,113 @@ const ResultIdRoute = ResultIdRouteImport.update({
   path: '/result/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminResetPasswordRoute = AdminResetPasswordRouteImport.update({
+  id: '/admin/reset-password',
+  path: '/admin/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminForgotPasswordRoute = AdminForgotPasswordRouteImport.update({
+  id: '/admin/forgot-password',
+  path: '/admin/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/history': typeof HistoryRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/forgot-password': typeof AdminForgotPasswordRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/reset-password': typeof AdminResetPasswordRoute
   '/result/$id': typeof ResultIdRoute
   '/saree/$id': typeof SareeIdRoute
+  '/superadmin/dashboard': typeof SuperadminDashboardRoute
   '/try-on/$id': typeof TryOnIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/history': typeof HistoryRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/forgot-password': typeof AdminForgotPasswordRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/reset-password': typeof AdminResetPasswordRoute
   '/result/$id': typeof ResultIdRoute
   '/saree/$id': typeof SareeIdRoute
+  '/superadmin/dashboard': typeof SuperadminDashboardRoute
   '/try-on/$id': typeof TryOnIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/history': typeof HistoryRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/forgot-password': typeof AdminForgotPasswordRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/reset-password': typeof AdminResetPasswordRoute
   '/result/$id': typeof ResultIdRoute
   '/saree/$id': typeof SareeIdRoute
+  '/superadmin/dashboard': typeof SuperadminDashboardRoute
   '/try-on/$id': typeof TryOnIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/history' | '/result/$id' | '/saree/$id' | '/try-on/$id'
+  fullPaths:
+    | '/'
+    | '/history'
+    | '/admin/dashboard'
+    | '/admin/forgot-password'
+    | '/admin/login'
+    | '/admin/reset-password'
+    | '/result/$id'
+    | '/saree/$id'
+    | '/superadmin/dashboard'
+    | '/try-on/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/history' | '/result/$id' | '/saree/$id' | '/try-on/$id'
+  to:
+    | '/'
+    | '/history'
+    | '/admin/dashboard'
+    | '/admin/forgot-password'
+    | '/admin/login'
+    | '/admin/reset-password'
+    | '/result/$id'
+    | '/saree/$id'
+    | '/superadmin/dashboard'
+    | '/try-on/$id'
   id:
-    '__root__' | '/' | '/history' | '/result/$id' | '/saree/$id' | '/try-on/$id'
+    | '__root__'
+    | '/'
+    | '/history'
+    | '/admin/dashboard'
+    | '/admin/forgot-password'
+    | '/admin/login'
+    | '/admin/reset-password'
+    | '/result/$id'
+    | '/saree/$id'
+    | '/superadmin/dashboard'
+    | '/try-on/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HistoryRoute: typeof HistoryRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminForgotPasswordRoute: typeof AdminForgotPasswordRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminResetPasswordRoute: typeof AdminResetPasswordRoute
   ResultIdRoute: typeof ResultIdRoute
   SareeIdRoute: typeof SareeIdRoute
+  SuperadminDashboardRoute: typeof SuperadminDashboardRoute
   TryOnIdRoute: typeof TryOnIdRoute
 }
 
@@ -103,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TryOnIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/superadmin/dashboard': {
+      id: '/superadmin/dashboard'
+      path: '/superadmin/dashboard'
+      fullPath: '/superadmin/dashboard'
+      preLoaderRoute: typeof SuperadminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/saree/$id': {
       id: '/saree/$id'
       path: '/saree/$id'
@@ -117,26 +204,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResultIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/reset-password': {
+      id: '/admin/reset-password'
+      path: '/admin/reset-password'
+      fullPath: '/admin/reset-password'
+      preLoaderRoute: typeof AdminResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/forgot-password': {
+      id: '/admin/forgot-password'
+      path: '/admin/forgot-password'
+      fullPath: '/admin/forgot-password'
+      preLoaderRoute: typeof AdminForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HistoryRoute: HistoryRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminForgotPasswordRoute: AdminForgotPasswordRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  AdminResetPasswordRoute: AdminResetPasswordRoute,
   ResultIdRoute: ResultIdRoute,
   SareeIdRoute: SareeIdRoute,
+  SuperadminDashboardRoute: SuperadminDashboardRoute,
   TryOnIdRoute: TryOnIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

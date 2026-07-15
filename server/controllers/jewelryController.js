@@ -4,7 +4,7 @@ const path = require('path');
 const Razorpay = require('razorpay');
 const { validationResult } = require('express-validator');
 
-const User = require('../models/User');
+// User model removed
 const Model3D = require('../models/Model3D');
 const GenerationJob = require('../models/GenerationJob');
 const Plan = require('../models/Plan');
@@ -352,7 +352,8 @@ async function runBackgroundPipeline(jobId, inputPath, userId, uniqueCode, origi
     }
 
     // 3. Deduct credits upon successful Meshy submission
-    const user = await User.findOne({ firebase_uid: userId });
+    // User logic removed
+    const user = null;
     if (user) {
       const beforeBalance = user.credits || 0;
       const afterBalance = Math.max(0, beforeBalance - CREDITS_PER_GENERATION);
@@ -427,7 +428,7 @@ async function runBackgroundPipeline(jobId, inputPath, userId, uniqueCode, origi
     // Refund credits if they were deducted but generation failed
     if (creditsDeducted) {
       try {
-        const user = await User.findOne({ firebase_uid: userId });
+        const user = null; // User removed
         if (user) {
           const beforeBalance = user.credits || 0;
           const afterBalance = beforeBalance + CREDITS_PER_GENERATION;
@@ -631,7 +632,7 @@ const verifyPayment = async (req, res, next) => {
 
     // Allocate credits to user
     const plan = await Plan.findOne({ id: plan_id });
-    const user = await User.findOne({ firebase_uid: req.user.firebase_uid });
+    const user = null; // User removed
     
     if (plan && user) {
       const beforeBalance = user.credits || 0;

@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const User = require('../models/User');
+const AdminUser = require('../models/AdminUser');
 const Model3D = require('../models/Model3D');
 const GenerationJob = require('../models/GenerationJob');
 const Plan = require('../models/Plan');
@@ -9,6 +9,7 @@ const CreditTransaction = require('../models/CreditTransaction');
 const SystemSetting = require('../models/SystemSetting');
 const StorageAuditLog = require('../models/StorageAuditLog');
 const AdminActivityLog = require('../models/AdminActivityLog');
+
 
 /**
  * Log admin activity helper
@@ -35,7 +36,7 @@ const logAdminActivity = async (adminId, action, targetType, targetId, details, 
  */
 const getDashboardStats = async (req, res, next) => {
   try {
-    const totalUsers = await User.countDocuments();
+    const totalUsers = await AdminUser.countDocuments();
     const totalGenerations = await GenerationJob.countDocuments();
     const totalModels = await Model3D.countDocuments({ status: 'active' });
     
@@ -76,31 +77,11 @@ const listUsers = async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit || '50');
     const offset = parseInt(req.query.offset || '0');
-    const search = req.query.search || '';
-    const status = req.query.status || '';
-    const plan = req.query.plan || '';
-
-    const query = {};
-
-    if (search) {
-      query.$or = [
-        { email: { $regex: search, $options: 'i' } },
-        { name: { $regex: search, $options: 'i' } }
-      ];
-    }
-
-    if (status) query.status = status;
-    if (plan) query.plan = plan;
-
-    const total = await User.countDocuments(query);
-    const users = await User.find(query)
-      .sort({ createdAt: -1 })
-      .skip(offset)
-      .limit(limit);
-
+    
+    // User model removed, return empty
     res.status(200).json({
-      users,
-      total
+      users: [],
+      total: 0
     });
   } catch (error) {
     next(error);
@@ -114,66 +95,7 @@ const listUsers = async (req, res, next) => {
  */
 const updateUser = async (req, res, next) => {
   try {
-    const { status, plan_id, credits_delta, credits_set } = req.body;
-    const user = await User.findOne({ firebase_uid: req.params.user_id });
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    const beforeCredits = user.credits || 0;
-
-    // 1. Update status
-    if (status) {
-      user.status = status;
-      user.is_suspended = status === 'suspended';
-    }
-
-    // 2. Update plan
-    if (plan_id) {
-      const plan = await Plan.findOne({ id: plan_id });
-      if (plan) {
-        user.plan_id = plan.id;
-        user.plan = plan.name.toLowerCase();
-      }
-    }
-
-    // 3. Adjust credits
-    if (credits_set !== undefined) {
-      user.credits = credits_set;
-      await CreditTransaction.create({
-        user_id: user.firebase_uid,
-        change_amount: credits_set - beforeCredits,
-        before_balance: beforeCredits,
-        after_balance: credits_set,
-        reason: 'ADMIN_ADJUST',
-        description: `Admin manual credit set by ${req.admin.username}`
-      });
-    } else if (credits_delta !== undefined) {
-      const newCredits = Math.max(0, beforeCredits + credits_delta);
-      user.credits = newCredits;
-      await CreditTransaction.create({
-        user_id: user.firebase_uid,
-        change_amount: credits_delta,
-        before_balance: beforeCredits,
-        after_balance: newCredits,
-        reason: 'ADMIN_ADJUST',
-        description: `Admin manual credit adjustment: ${credits_delta} by ${req.admin.username}`
-      });
-    }
-
-    await user.save();
-
-    await logAdminActivity(
-      req.admin.id,
-      'UPDATE_USER',
-      'User',
-      user._id,
-      { status, plan_id, credits_delta, credits_set },
-      req.ip
-    );
-
-    res.status(200).json({ success: true, user });
+    return res.status(404).json({ success: false, message: 'User logic disabled' });
   } catch (error) {
     next(error);
   }

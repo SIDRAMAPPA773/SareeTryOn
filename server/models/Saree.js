@@ -22,6 +22,11 @@ const SareeSchema = new mongoose.Schema({
     required: [true, 'Please add a color'],
     trim: true
   },
+  price: {
+    type: Number,
+    required: [true, 'Please add a price'],
+    default: 15000
+  },
   fabric: {
     type: String,
     required: [true, 'Please add a fabric type'],

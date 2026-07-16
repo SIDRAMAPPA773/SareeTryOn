@@ -1,4 +1,5 @@
 const Saree = require('../models/Saree');
+const Catalog = require('../models/Catalog');
 const { validationResult } = require('express-validator');
 
 /**
@@ -90,7 +91,7 @@ const seedSarees = async (req, res, next) => {
  */
 const createSaree = async (req, res, next) => {
   try {
-    const { name, category, catalogId, color, fabric, description } = req.body;
+    const { name, category, catalogId, color, fabric, price, description } = req.body;
     let imageUrl = req.body.imageUrl || '';
 
     if (req.file) {
@@ -106,12 +107,24 @@ const createSaree = async (req, res, next) => {
       category,
       color,
       fabric,
+      price: price ? Number(price) : 15000,
       description,
       imageUrl
     };
     
     if (catalogId) {
       sareeData.catalogId = catalogId;
+    } else if (category) {
+      // Auto-create or link to catalog based on category name if no catalogId provided
+      let catalog = await Catalog.findOne({ name: { $regex: new RegExp(`^${category}$`, 'i') } });
+      if (!catalog) {
+        catalog = await Catalog.create({
+          name: category,
+          description: `Auto-generated catalog for ${category}`,
+          coverImage: imageUrl
+        });
+      }
+      sareeData.catalogId = catalog._id;
     }
 
     const saree = await Saree.create(sareeData);
@@ -138,6 +151,28 @@ const updateSaree = async (req, res, next) => {
     const updateData = { ...req.body };
     if (req.file) {
       updateData.imageUrl = req.file.path;
+    }
+
+    if (updateData.catalogId === '') {
+      updateData.$unset = { catalogId: 1 };
+      delete updateData.catalogId;
+    }
+
+    // Auto-create or link catalog on update if category is changed and no catalogId is provided
+    if (updateData.category && !updateData.catalogId) {
+      let catalog = await Catalog.findOne({ name: { $regex: new RegExp(`^${updateData.category}$`, 'i') } });
+      if (!catalog) {
+        catalog = await Catalog.create({
+          name: updateData.category,
+          description: `Auto-generated catalog for ${updateData.category}`,
+          coverImage: updateData.imageUrl || saree.imageUrl
+        });
+      }
+      updateData.catalogId = catalog._id;
+      if (updateData.$unset) {
+        delete updateData.$unset.catalogId;
+        if (Object.keys(updateData.$unset).length === 0) delete updateData.$unset;
+      }
     }
 
     saree = await Saree.findByIdAndUpdate(req.params.id, updateData, {

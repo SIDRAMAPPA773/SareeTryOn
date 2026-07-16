@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { SiteNav } from "@/views/components/site-nav";
 import { fetchSarees, categories, formatPrice } from "@/models/data/sarees";
@@ -24,8 +24,41 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { sarees, catalogs } = Route.useLoaderData();
+  const initialData = Route.useLoaderData();
+  const [sarees, setSarees] = useState(initialData.sarees);
+  const [catalogs, setCatalogs] = useState(initialData.catalogs);
   const [active, setActive] = useState<string>("All");
+
+  // Background polling for Kiosk Mode (updates every 10 seconds silently)
+  useEffect(() => {
+    const fetchLatestData = async () => {
+      try {
+        const [sareesRes, catalogsRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/sarees`),
+          fetch(`${API_BASE_URL}/catalogs`)
+        ]);
+        
+        const sareesJson = await sareesRes.json();
+        const catalogsJson = await catalogsRes.json();
+        
+        // Map backend saree data exactly like the loader does via fetchSarees helper
+        if (sareesJson.success) {
+          // Import mapBackendSaree logic locally or use fetchSarees directly
+          const newSarees = await fetchSarees();
+          setSarees(newSarees);
+        }
+        
+        if (catalogsJson.success) {
+          setCatalogs(catalogsJson.data);
+        }
+      } catch (err) {
+        console.error("Kiosk background fetch failed:", err);
+      }
+    };
+
+    const interval = setInterval(fetchLatestData, 10000); // 10 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   // Get unique legacy categories from existing sarees that aren't in catalogs
   const uniqueCategories = useMemo(() => {

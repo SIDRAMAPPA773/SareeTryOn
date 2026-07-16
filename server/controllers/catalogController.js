@@ -32,6 +32,15 @@ const createCatalog = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please provide a catalog name' });
     }
 
+    // Check for duplicate catalog name
+    const existingCatalog = await Catalog.findOne({ 
+      name: { $regex: new RegExp(`^${name}$`, 'i') } 
+    });
+
+    if (existingCatalog) {
+      return res.status(400).json({ success: false, message: 'A catalog with this name already exists' });
+    }
+
     const catalog = await Catalog.create({
       name,
       description,

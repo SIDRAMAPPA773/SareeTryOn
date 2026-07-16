@@ -25,6 +25,7 @@ function AdminSarees() {
     category: '', // Used as fallback or if catalogId is not set
     color: '',
     fabric: '',
+    price: '',
     description: '',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -40,7 +41,6 @@ function AdminSarees() {
           fetchSarees();
           fetchCatalogs();
         } else {
-          toast.error('Unauthorized access');
           navigate({ to: '/admin/login' });
         }
       } catch (error) {
@@ -85,6 +85,7 @@ function AdminSarees() {
       data.append('category', formData.category);
       data.append('color', formData.color);
       data.append('fabric', formData.fabric);
+      data.append('price', formData.price);
       data.append('description', formData.description);
       if (formData.catalogId) data.append('catalogId', formData.catalogId);
       if (imageFile) {
@@ -125,6 +126,7 @@ function AdminSarees() {
       data.append('category', formData.category);
       data.append('color', formData.color);
       data.append('fabric', formData.fabric);
+      data.append('price', formData.price);
       data.append('description', formData.description);
       if (formData.catalogId) data.append('catalogId', formData.catalogId);
       if (imageFile) {
@@ -172,7 +174,7 @@ function AdminSarees() {
   };
 
   const openCreateModal = () => {
-    setFormData({ name: '', catalogId: '', category: '', color: '', fabric: '', description: '' });
+    setFormData({ name: '', catalogId: '', category: '', color: '', fabric: '', price: '', description: '' });
     setImageFile(null);
     setIsCreateOpen(true);
   };
@@ -185,6 +187,7 @@ function AdminSarees() {
       category: saree.category || '',
       color: saree.color || '',
       fabric: saree.fabric || '',
+      price: saree.price ? saree.price.toString() : '',
       description: saree.description || '',
     });
     setImageFile(null);
@@ -194,73 +197,120 @@ function AdminSarees() {
   if (isLoading) return <div className="p-8">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="mx-auto max-w-6xl rounded-lg bg-white p-6 shadow-md">
-        <div className="flex items-center justify-between border-b pb-4">
-          <div className="flex items-center gap-4">
-            <Link to="/admin/dashboard" className="text-gray-500 hover:text-gray-900 font-medium">
-              &larr; Back to Dashboard
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Background Gradient */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/20" />
+
+      <main className="relative max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 reveal-up">
+        
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
+          <div>
+            <Link to="/admin/dashboard" className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-2 mb-6">
+              <span>&larr;</span> Back to Dashboard
             </Link>
-            <h1 className="text-3xl font-bold text-gray-900 border-l pl-4">Manage Sarees</h1>
+            <h1 className="font-serif text-4xl sm:text-5xl text-foreground">Manage Sarees</h1>
           </div>
           <button 
             onClick={openCreateModal}
-            className="rounded bg-primary px-4 py-2 text-white hover:bg-primary/90"
+            className="btn-gold px-8 py-3 text-xs font-semibold tracking-[0.2em] uppercase rounded-full shrink-0"
           >
             + Add New Saree
           </button>
         </div>
         
-        <div className="mt-8">
-          <div className="overflow-hidden rounded border">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Image</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {sarees.map((saree: any) => (
-                  <tr key={saree._id}>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <img src={saree.imageUrl} alt={saree.name} className="h-12 w-12 rounded object-cover" />
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 font-medium text-gray-900">{saree.name}</td>
-                    <td className="whitespace-nowrap px-6 py-4 text-gray-500">{saree.category}</td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm">
-                      <button onClick={() => openEditModal(saree)} className="mr-4 text-indigo-600 hover:text-indigo-900">Edit</button>
-                      <button onClick={() => handleDelete(saree._id)} className="text-red-600 hover:text-red-900">Delete</button>
-                    </td>
-                  </tr>
-                ))}
-                {sarees.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">No sarees found in catalog</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+        {/* Inventory List Section */}
+        <div className="glass-premium rounded-3xl overflow-hidden border border-border/50">
+          {/* Table Header (Hidden on mobile) */}
+          <div className="hidden md:grid grid-cols-12 gap-4 p-6 border-b border-border/40 bg-primary/5 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            <div className="col-span-2">Image</div>
+            <div className="col-span-4">Name</div>
+            <div className="col-span-2">Category</div>
+            <div className="col-span-2">Price</div>
+            <div className="col-span-2 text-right">Actions</div>
+          </div>
+          
+          <div className="divide-y divide-border/40">
+            {sarees.map((saree: any, i: number) => (
+              <div 
+                key={saree._id} 
+                className="grid grid-cols-1 md:grid-cols-12 gap-4 p-6 items-center hover:bg-primary/5 transition-colors group"
+              >
+                <div className="col-span-2 flex justify-center md:justify-start">
+                  <div className="w-28 h-36 sm:w-24 sm:h-32 rounded-xl overflow-hidden shadow-sm">
+                    {saree.imageUrl ? (
+                      <img src={saree.imageUrl} alt={saree.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    ) : (
+                      <div className="w-full h-full bg-primary/10 flex items-center justify-center">
+                        <span className="text-[10px] uppercase text-primary/50">No Img</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="col-span-4 text-center md:text-left">
+                  <h3 className="font-serif text-lg text-foreground">{saree.name}</h3>
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{saree.fabric} &middot; {saree.color}</p>
+                </div>
+                
+                <div className="col-span-2 text-center md:text-left">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-widest bg-primary/10 text-primary">
+                    {saree.category}
+                  </span>
+                </div>
+
+                <div className="col-span-2 text-center md:text-left font-medium text-foreground">
+                  ₹{saree.price?.toLocaleString('en-IN') || '15,000'}
+                </div>
+                
+                <div className="col-span-2 flex items-center justify-center md:justify-end gap-3">
+                  <button onClick={() => openEditModal(saree)} className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Edit">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </button>
+                  <button onClick={() => handleDelete(saree._id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Delete">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            ))}
+            
+            {sarees.length === 0 && (
+              <div className="p-16 flex flex-col items-center justify-center text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                  <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="font-serif text-2xl text-foreground mb-2">No Sarees Found</h3>
+                <p className="text-muted-foreground text-sm">Your inventory is currently empty. Add a new saree to get started.</p>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Create / Edit Modal Form Component */}
       {(isCreateOpen || isEditOpen) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl my-8">
-            <h2 className="mb-4 text-xl font-bold">{isCreateOpen ? 'Add New Saree' : 'Edit Saree'}</h2>
-            <form onSubmit={isCreateOpen ? handleCreateSaree : handleEditSaree} className="space-y-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-y-auto py-12">
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm fixed" onClick={() => { setIsCreateOpen(false); setIsEditOpen(false); }} />
+          <div className="relative w-full max-w-2xl glass-premium rounded-2xl p-8 shadow-2xl border border-border/50 reveal-up my-auto">
+            <h2 className="mb-8 font-serif text-3xl text-foreground">
+              {isCreateOpen ? 'Add New Saree' : 'Edit Saree Details'}
+            </h2>
+            <form onSubmit={isCreateOpen ? handleCreateSaree : handleEditSaree} className="space-y-6">
+              
               <div>
-                <label className="block text-sm font-medium">Name</label>
-                <input required type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="mt-1 block w-full rounded border p-2" placeholder="e.g. Crimson Red Banarasi" />
+                <label className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Saree Name</label>
+                <input required type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full bg-background/50 border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="e.g. Crimson Red Banarasi" />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium">Catalog (Optional)</label>
+                  <label className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Link to Catalog (Optional)</label>
                   <select 
                     value={formData.catalogId} 
                     onChange={(e) => {
@@ -271,63 +321,70 @@ function AdminSarees() {
                         category: selectedCat ? selectedCat.name : formData.category
                       });
                     }} 
-                    className="mt-1 block w-full rounded border p-2 bg-white"
+                    className="w-full bg-background/50 border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none"
                   >
-                    <option value="">None / Custom</option>
+                    <option value="">None / Auto-Create Custom</option>
                     {catalogs.map(c => (
                       <option key={c._id} value={c._id}>{c.name}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium">Category / Type</label>
-                  <input required type="text" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} className="mt-1 block w-full rounded border p-2" placeholder="e.g. Silk" />
+                  <label className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Category / Type</label>
+                  <input required type="text" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} className="w-full bg-background/50 border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="e.g. Silk, Banarasi" />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium">Fabric</label>
-                  <input required type="text" value={formData.fabric} onChange={(e) => setFormData({...formData, fabric: e.target.value})} className="mt-1 block w-full rounded border p-2" placeholder="e.g. Pure Silk" />
+                  <label className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Fabric</label>
+                  <input required type="text" value={formData.fabric} onChange={(e) => setFormData({...formData, fabric: e.target.value})} className="w-full bg-background/50 border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="e.g. Pure Silk" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium">Color</label>
-                  <input required type="text" value={formData.color} onChange={(e) => setFormData({...formData, color: e.target.value})} className="mt-1 block w-full rounded border p-2" placeholder="e.g. Red" />
+                  <label className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Color</label>
+                  <input required type="text" value={formData.color} onChange={(e) => setFormData({...formData, color: e.target.value})} className="w-full bg-background/50 border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="e.g. Ruby Red" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium">Upload Image</label>
-                <input 
-                  type="file" 
-                  accept="image/*"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      setImageFile(e.target.files[0]);
-                    }
-                  }} 
-                  className="mt-1 block w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-primary/10 file:text-primary
-                    hover:file:bg-primary/20
-                  " 
-                />
+                <label className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Price (₹)</label>
+                <input required type="number" min="0" value={formData.price} onChange={(e) => setFormData({...formData, price: e.target.value})} className="w-full bg-background/50 border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" placeholder="e.g. 15000" />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Upload Image</label>
+                <div className="relative group rounded-xl border border-dashed border-primary/30 hover:border-primary/60 transition-colors bg-primary/5 p-4 flex flex-col items-center justify-center text-center cursor-pointer overflow-hidden">
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        setImageFile(e.target.files[0]);
+                      }
+                    }} 
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                  />
+                  <span className="text-sm font-medium text-foreground">{imageFile ? imageFile.name : 'Click to upload image'}</span>
+                </div>
                 {isEditOpen && !imageFile && selectedSaree?.imageUrl && (
-                  <p className="mt-1 text-xs text-gray-500">Leave blank to keep existing image</p>
+                  <p className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Leave blank to keep existing image
+                  </p>
                 )}
               </div>
               
               <div>
-                <label className="block text-sm font-medium">Description</label>
-                <textarea rows={3} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="mt-1 block w-full rounded border p-2" placeholder="Saree description..." />
+                <label className="block text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Description</label>
+                <textarea rows={3} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="w-full bg-background/50 border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Saree description..." />
               </div>
               
-              <div className="flex justify-end gap-2 mt-6">
-                <button type="button" onClick={() => { setIsCreateOpen(false); setIsEditOpen(false); }} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancel</button>
-                <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90">
-                  {isSubmitting ? 'Uploading & Saving...' : (isCreateOpen ? 'Create Saree' : 'Save Changes')}
+              <div className="flex gap-4 pt-4">
+                <button type="button" onClick={() => { setIsCreateOpen(false); setIsEditOpen(false); }} className="flex-1 py-3 text-xs font-semibold uppercase tracking-widest text-foreground bg-secondary/50 hover:bg-secondary rounded-full transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" disabled={isSubmitting} className="btn-gold flex-1 py-3 text-xs font-semibold tracking-[0.2em] uppercase rounded-full">
+                  {isSubmitting ? 'Saving...' : (isCreateOpen ? 'Create Saree' : 'Save Changes')}
                 </button>
               </div>
             </form>

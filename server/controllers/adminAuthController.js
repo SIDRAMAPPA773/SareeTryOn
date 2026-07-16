@@ -122,17 +122,8 @@ const getTransporter = async () => {
     });
   }
   
-  // Fallback to Ethereal for testing
-  let testAccount = await nodemailer.createTestAccount();
-  return nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false, 
-    auth: {
-      user: testAccount.user,
-      pass: testAccount.pass,
-    },
-  });
+  // If no real SMTP, return null to signify we should just use a direct link (avoids hanging on Render)
+  return null;
 };
 
 /**
@@ -170,26 +161,28 @@ const forgotPassword = async (req, res, next) => {
     try {
       const transporter = await getTransporter();
       
-      const info = await transporter.sendMail({
-        from: '"Virtual Couture Admin" <noreply@virtualcouture.com>',
-        to: admin.email,
-        subject: 'Password Reset Request',
-        text: message
-      });
-
-      console.log("Message sent: %s", info.messageId);
-      const previewUrl = nodemailer.getTestMessageUrl(info);
-      if (previewUrl) {
-        console.log("Preview URL: %s", previewUrl);
+      if (transporter) {
+        const info = await transporter.sendMail({
+          from: '"Virtual Couture Admin" <noreply@virtualcouture.com>',
+          to: admin.email,
+          subject: 'Password Reset Request',
+          text: message
+        });
+        console.log("Message sent: %s", info.messageId);
+        res.status(200).json({ success: true, message: 'Email sent' });
+      } else {
+        // No SMTP configured. For development/demo purposes, we just return the resetUrl directly 
+        // to the frontend so the user can proceed without needing a real email server.
+        console.log("No SMTP configured. Returning reset link directly.");
+        res.status(200).json({ success: true, message: 'Email skipped (Dev mode)', previewUrl: resetUrl });
       }
 
-      res.status(200).json({ success: true, message: 'Email sent', previewUrl });
     } catch (err) {
-      console.error(err);
+      console.error("Email send error:", err);
       admin.resetPasswordToken = undefined;
       admin.resetPasswordExpires = undefined;
       await admin.save();
-      return res.status(500).json({ success: false, message: 'Email could not be sent' });
+      return res.status(500).json({ success: false, message: 'Email could not be sent. Please configure SMTP.' });
     }
   } catch (error) {
     next(error);

@@ -12,6 +12,11 @@ const SareeSchema = new mongoose.Schema({
     required: [true, 'Please add a category'],
     trim: true
   },
+  catalogId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Catalog',
+    required: false
+  },
   color: {
     type: String,
     required: [true, 'Please add a color'],

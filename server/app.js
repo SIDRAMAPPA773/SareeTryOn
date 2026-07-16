@@ -15,6 +15,7 @@ const superAdminRoutes = require('./routes/superAdminRoutes');
 const jewelryRoutes = require('./routes/jewelryRoutes');
 const jewelryAdminRoutes = require('./routes/jewelryAdminRoutes');
 const embedRoutes = require('./routes/embedRoutes');
+const catalogRoutes = require('./routes/catalogRoutes');
 
 const app = express();
 
@@ -69,6 +70,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Mount routers
 app.use('/api/sarees', sareeRoutes);
+app.use('/api/catalogs', catalogRoutes);
 app.use('/api/tryon', tryOnRoutes);
 app.use('/api/auth', adminAuthRoutes);
 app.use('/api/superadmin', superAdminRoutes);

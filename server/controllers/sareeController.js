@@ -90,20 +90,31 @@ const seedSarees = async (req, res, next) => {
  */
 const createSaree = async (req, res, next) => {
   try {
-    const { name, category, color, fabric, description, imageUrl } = req.body;
+    const { name, category, catalogId, color, fabric, description } = req.body;
+    let imageUrl = req.body.imageUrl || '';
 
-    if (!name || !category || !imageUrl) {
-      return res.status(400).json({ success: false, message: 'Please provide name, category, and imageUrl' });
+    if (req.file) {
+      imageUrl = req.file.path; // Set by cloudinary storage
     }
 
-    const saree = await Saree.create({
+    if (!name || !category || !imageUrl) {
+      return res.status(400).json({ success: false, message: 'Please provide name, category, and imageUrl/file' });
+    }
+
+    const sareeData = {
       name,
       category,
       color,
       fabric,
       description,
       imageUrl
-    });
+    };
+    
+    if (catalogId) {
+      sareeData.catalogId = catalogId;
+    }
+
+    const saree = await Saree.create(sareeData);
 
     res.status(201).json({ success: true, data: saree });
   } catch (error) {
@@ -124,7 +135,12 @@ const updateSaree = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Saree not found' });
     }
 
-    saree = await Saree.findByIdAndUpdate(req.params.id, req.body, {
+    const updateData = { ...req.body };
+    if (req.file) {
+      updateData.imageUrl = req.file.path;
+    }
+
+    saree = await Saree.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true
     });

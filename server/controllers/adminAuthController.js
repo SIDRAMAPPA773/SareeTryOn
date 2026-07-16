@@ -159,6 +159,34 @@ const forgotPassword = async (req, res, next) => {
     const message = `You are receiving this email because you (or someone else) has requested the reset of a password.\n\nPlease click on the following link, or paste this into your browser to complete the process:\n\n${resetUrl}`;
 
     try {
+      if (process.env.BREVO_API_KEY) {
+        // Use Brevo HTTP API to bypass Render SMTP blocking
+        console.log("Sending email via Brevo HTTP API...");
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: {
+            'accept': 'application/json',
+            'api-key': process.env.BREVO_API_KEY,
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            sender: { name: 'Virtual Couture', email: process.env.SMTP_USER || 'noreply@virtualcouture.com' },
+            to: [{ email: admin.email }],
+            subject: 'Password Reset Request',
+            htmlContent: `<html><body><p>You are receiving this email because you (or someone else) has requested the reset of a password.</p><p>Please click on the following link, or paste this into your browser to complete the process:</p><a href="${resetUrl}">${resetUrl}</a></body></html>`
+          })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error('Brevo API Error: ' + JSON.stringify(errData));
+        }
+
+        console.log("Message sent via Brevo.");
+        return res.status(200).json({ success: true, message: 'Email sent' });
+      }
+
+      // Fallback to standard SMTP (nodemailer)
       const transporter = await getTransporter();
       
       if (transporter) {
@@ -168,11 +196,11 @@ const forgotPassword = async (req, res, next) => {
           subject: 'Password Reset Request',
           text: message
         });
-        console.log("Message sent: %s", info.messageId);
-        res.status(200).json({ success: true, message: 'Email sent' });
+        console.log("Message sent via SMTP: %s", info.messageId);
+        return res.status(200).json({ success: true, message: 'Email sent' });
       } else {
-        // No SMTP configured. Do NOT return the link to the frontend for security reasons.
-        console.error("No SMTP configured. Cannot send password reset email.");
+        // No SMTP or Brevo configured.
+        console.error("No email service configured. Cannot send password reset email.");
         return res.status(500).json({ success: false, message: 'Email server is not configured. Please contact the system administrator.' });
       }
 

@@ -5,22 +5,42 @@ import { SiteNav } from "@/views/components/site-nav";
 import { fetchSarees, categories, formatPrice } from "@/models/data/sarees";
 import heroImg from "@/assets/hero.jpg";
 
+import { API_BASE_URL } from "@/config/api";
+
 export const Route = createFileRoute("/")({
   loader: async () => {
     const sarees = await fetchSarees();
-    return { sarees };
+    let catalogs = [];
+    try {
+      const res = await fetch(`${API_BASE_URL}/catalogs`);
+      const json = await res.json();
+      if (json.success) catalogs = json.data;
+    } catch (err) {
+      console.error("Failed to fetch catalogs", err);
+    }
+    return { sarees, catalogs };
   },
   component: Index,
 });
 
 function Index() {
-  const { sarees } = Route.useLoaderData();
+  const { sarees, catalogs } = Route.useLoaderData();
   const [active, setActive] = useState<string>("All");
 
-  const filtered = useMemo(
-    () => (active === "All" ? sarees : sarees.filter((s) => s.category === active)),
-    [active, sarees],
-  );
+  const filtered = useMemo(() => {
+    if (active === "All") return sarees;
+    
+    // Find the catalog object that is currently active
+    const activeCatalog = catalogs.find((c: any) => c.name === active);
+    
+    if (activeCatalog) {
+      // Filter sarees by catalogId matching this catalog
+      return sarees.filter((s: any) => s.catalogId === activeCatalog._id || s.category === active);
+    }
+    
+    // Fallback to basic category string matching
+    return sarees.filter((s) => s.category === active);
+  }, [active, sarees, catalogs]);
 
   return (
     <div className="min-h-screen">
@@ -83,7 +103,7 @@ function Index() {
         </div>
 
         <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2">
-          {["All", "Silk", "Cotton", "Georgette"].map((c) => {
+          {["All", ...catalogs.map((c: any) => c.name)].map((c) => {
             const isActive = c === active;
             return (
               <button

@@ -13,6 +13,7 @@ export interface Saree {
   description: string;
   fabric: string;
   origin: string;
+  catalogId?: string;
 }
 
 export const categories: ("Catalog" | SareeCategory)[] = [
@@ -35,6 +36,7 @@ function mapBackendSaree(data: any): Saree {
     description: data.description,
     fabric: data.fabric,
     origin: "India", // Fallback origin
+    catalogId: data.catalogId,
   };
 }
 

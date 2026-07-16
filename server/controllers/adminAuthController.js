@@ -153,7 +153,7 @@ const forgotPassword = async (req, res, next) => {
     await admin.save();
 
     // Create reset url
-    const frontendUrl = process.env.FRONTEND_URL || 'https://sareetryonproject.netlify.app';
+    const frontendUrl = process.env.FRONTEND_URL || process.env.PIXRITY_FRONTEND_URL || 'https://sareetryonproject.netlify.app';
     const resetUrl = `${frontendUrl}/admin/reset-password?token=${resetToken}`;
 
     const message = `You are receiving this email because you (or someone else) has requested the reset of a password.\n\nPlease click on the following link, or paste this into your browser to complete the process:\n\n${resetUrl}`;

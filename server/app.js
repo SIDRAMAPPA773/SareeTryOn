@@ -37,7 +37,14 @@ app.use(cors({
   },
   credentials: true
 }));
-app.options('/*', cors());
+
+// Manually handle preflight OPTIONS requests without relying on Express 5 routing syntax
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  next();
+});
 
 // Session Configuration
 app.use(session({

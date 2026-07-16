@@ -159,30 +159,32 @@ const forgotPassword = async (req, res, next) => {
     const message = `You are receiving this email because you (or someone else) has requested the reset of a password.\n\nPlease click on the following link, or paste this into your browser to complete the process:\n\n${resetUrl}`;
 
     try {
-      if (process.env.BREVO_API_KEY) {
-        // Use Brevo HTTP API to bypass Render SMTP blocking
-        console.log("Sending email via Brevo HTTP API...");
-        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      if (process.env.EMAILJS_SERVICE_ID && process.env.EMAILJS_TEMPLATE_ID && process.env.EMAILJS_PUBLIC_KEY && process.env.EMAILJS_PRIVATE_KEY) {
+        // Use EmailJS HTTP API to bypass Render SMTP blocking and avoid spam filters
+        console.log("Sending email via EmailJS HTTP API...");
+        const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
           method: 'POST',
           headers: {
-            'accept': 'application/json',
-            'api-key': process.env.BREVO_API_KEY,
-            'content-type': 'application/json'
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            sender: { name: 'Virtual Couture', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_USER || 'noreply@virtualcouture.com' },
-            to: [{ email: admin.email }],
-            subject: 'Password Reset Request',
-            htmlContent: `<html><body><p>You are receiving this email because you (or someone else) has requested the reset of a password.</p><p>Please click on the following link, or paste this into your browser to complete the process:</p><a href="${resetUrl}">${resetUrl}</a></body></html>`
+            service_id: process.env.EMAILJS_SERVICE_ID,
+            template_id: process.env.EMAILJS_TEMPLATE_ID,
+            user_id: process.env.EMAILJS_PUBLIC_KEY,
+            accessToken: process.env.EMAILJS_PRIVATE_KEY,
+            template_params: {
+              to_email: admin.email,
+              reset_link: resetUrl
+            }
           })
         });
 
         if (!response.ok) {
-          const errData = await response.json();
-          throw new Error('Brevo API Error: ' + JSON.stringify(errData));
+          const errText = await response.text();
+          throw new Error('EmailJS API Error: ' + errText);
         }
 
-        console.log("Message sent via Brevo.");
+        console.log("Message sent via EmailJS.");
         return res.status(200).json({ success: true, message: 'Email sent' });
       }
 

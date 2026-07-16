@@ -32,10 +32,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors({
   origin: function (origin, callback) {
-    callback(null, true); // Allow all origins to connect
+    if (!origin) return callback(null, true);
+    return callback(null, origin);
   },
   credentials: true
 }));
+app.options('*', cors());
 
 // Session Configuration
 app.use(session({

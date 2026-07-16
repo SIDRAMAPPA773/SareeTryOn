@@ -211,7 +211,7 @@ const forgotPassword = async (req, res, next) => {
       admin.resetPasswordToken = undefined;
       admin.resetPasswordExpires = undefined;
       await admin.save();
-      return res.status(500).json({ success: false, message: 'Email could not be sent due to a server error.' });
+      return res.status(500).json({ success: false, message: err.message || 'Email could not be sent due to a server error.' });
     }
   } catch (error) {
     next(error);

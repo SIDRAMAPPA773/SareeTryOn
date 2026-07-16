@@ -60,19 +60,6 @@ function ForgotPassword() {
               <p className="text-sm text-gray-600 mb-6">
                 If an account exists for {email}, you will receive a password reset link shortly.
               </p>
-              
-              {previewUrl && (
-                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-left">
-                  <h4 className="text-yellow-800 font-semibold mb-2 flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                    Development Mode
-                  </h4>
-                  <p className="text-sm text-yellow-700 mb-2">No SMTP server is configured. You can use this direct link to reset the password:</p>
-                  <a href={previewUrl} className="text-primary hover:underline font-medium text-sm break-all">
-                    Click here to reset password
-                  </a>
-                </div>
-              )}
 
               <Link to="/admin/login" className="text-primary hover:underline font-medium">
                 Return to login

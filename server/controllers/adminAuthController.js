@@ -122,7 +122,7 @@ const getTransporter = async () => {
     });
   }
   
-  // If no real SMTP, return null to signify we should just use a direct link (avoids hanging on Render)
+  // If no real SMTP, return null
   return null;
 };
 
@@ -171,17 +171,17 @@ const forgotPassword = async (req, res, next) => {
         console.log("Message sent: %s", info.messageId);
         res.status(200).json({ success: true, message: 'Email sent' });
       } else {
-        // No SMTP configured. For development/demo purposes, we just return the resetUrl directly 
-        // to the frontend so the user can proceed without needing a real email server.
-        console.log("No SMTP configured. Returning reset link directly.");
-        res.status(200).json({ success: true, message: 'Email skipped (Dev mode)', previewUrl: resetUrl });
+        // No SMTP configured. Do NOT return the link to the frontend for security reasons.
+        console.error("No SMTP configured. Cannot send password reset email.");
+        return res.status(500).json({ success: false, message: 'Email server is not configured. Please contact the system administrator.' });
       }
 
     } catch (err) {
       console.error("Email send error:", err);
-      // Fallback: If SMTP fails, still return the link directly for testing purposes
-      console.log("SMTP failed. Falling back to direct link.");
-      return res.status(200).json({ success: true, message: 'Email failed, but link provided (Dev mode)', previewUrl: resetUrl });
+      admin.resetPasswordToken = undefined;
+      admin.resetPasswordExpires = undefined;
+      await admin.save();
+      return res.status(500).json({ success: false, message: 'Email could not be sent due to a server error.' });
     }
   } catch (error) {
     next(error);

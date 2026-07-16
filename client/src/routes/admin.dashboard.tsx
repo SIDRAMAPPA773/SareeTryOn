@@ -90,7 +90,7 @@ function AdminDashboard() {
               </div>
             </div>
             <div className="flex items-center">
-              <span className="mr-4 text-sm text-gray-600">Logged in as <strong>{admin?.username}</strong></span>
+              <span className="mr-4 text-sm font-semibold text-gray-900">{admin?.username}</span>
               <button onClick={handleLogout} className="text-sm font-medium text-red-600 hover:text-red-500">
                 Logout
               </button>

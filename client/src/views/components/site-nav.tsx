@@ -75,10 +75,10 @@ export function SiteNav() {
               hint="Your virtual fittings"
             />
             <DrawerLink
-              to="/admin/login"
+              to="/admin/dashboard"
               onClose={() => setOpen(false)}
               icon={<Lock className="h-4 w-4" />}
-              label="Admin Login"
+              label="Admin Portal"
               hint="Manage store content"
             />
           </nav>

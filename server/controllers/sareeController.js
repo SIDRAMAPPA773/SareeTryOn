@@ -81,6 +81,8 @@ const seedSarees = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
 /**
  * @desc    Create a new saree
  * @route   POST /api/sarees

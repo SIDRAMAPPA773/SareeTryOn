@@ -27,6 +27,14 @@ function Index() {
   const { sarees, catalogs } = Route.useLoaderData();
   const [active, setActive] = useState<string>("All");
 
+  // Get unique legacy categories from existing sarees that aren't in catalogs
+  const uniqueCategories = useMemo(() => {
+    const catalogNames = catalogs.map((c: any) => c.name);
+    const sareeCats = sarees.map((s: any) => s.category).filter(Boolean);
+    const uniqueLegacy = [...new Set(sareeCats)].filter(c => !catalogNames.includes(c));
+    return [...catalogNames, ...uniqueLegacy];
+  }, [sarees, catalogs]);
+
   const filtered = useMemo(() => {
     if (active === "All") return sarees;
     
@@ -102,23 +110,32 @@ function Index() {
           </div>
         </div>
 
-        <div className="no-scrollbar flex gap-3 overflow-x-auto pb-2">
-          {["All", ...catalogs.map((c: any) => c.name)].map((c) => {
-            const isActive = c === active;
-            return (
-              <button
-                key={c}
-                onClick={() => setActive(c)}
-                className={`shrink-0 border px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] transition-colors ${
-                  isActive
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-transparent text-foreground border-border hover:border-primary hover:text-primary"
-                }`}
-              >
+        <div className="flex items-center gap-3 pb-2">
+          <button
+            onClick={() => setActive("All")}
+            className={`shrink-0 border px-6 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] transition-colors ${
+              active === "All"
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-transparent text-foreground border-border hover:border-primary hover:text-primary"
+            }`}
+          >
+            All
+          </button>
+          
+          <select
+            value={active === "All" ? "" : active}
+            onChange={(e) => setActive(e.target.value || "All")}
+            className="shrink-0 border px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] bg-transparent text-foreground border-border hover:border-primary focus:border-primary outline-none transition-colors cursor-pointer min-w-[200px]"
+          >
+            <option value="" disabled className="text-gray-400">
+              Select a Catalog
+            </option>
+            {uniqueCategories.map((c: any) => (
+              <option key={c} value={c} className="text-foreground bg-background">
                 {c}
-              </button>
-            );
-          })}
+              </option>
+            ))}
+          </select>
         </div>
       </section>
 

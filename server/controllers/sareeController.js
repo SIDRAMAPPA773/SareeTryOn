@@ -81,9 +81,83 @@ const seedSarees = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+/**
+ * @desc    Create a new saree
+ * @route   POST /api/sarees
+ * @access  Private/Admin
+ */
+const createSaree = async (req, res, next) => {
+  try {
+    const { name, category, color, fabric, description, imageUrl } = req.body;
+
+    if (!name || !category || !imageUrl) {
+      return res.status(400).json({ success: false, message: 'Please provide name, category, and imageUrl' });
+    }
+
+    const saree = await Saree.create({
+      name,
+      category,
+      color,
+      fabric,
+      description,
+      imageUrl
+    });
+
+    res.status(201).json({ success: true, data: saree });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Update a saree
+ * @route   PUT /api/sarees/:id
+ * @access  Private/Admin
+ */
+const updateSaree = async (req, res, next) => {
+  try {
+    let saree = await Saree.findById(req.params.id);
+
+    if (!saree) {
+      return res.status(404).json({ success: false, message: 'Saree not found' });
+    }
+
+    saree = await Saree.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    });
+
+    res.status(200).json({ success: true, data: saree });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Delete a saree
+ * @route   DELETE /api/sarees/:id
+ * @access  Private/Admin
+ */
+const deleteSaree = async (req, res, next) => {
+  try {
+    const saree = await Saree.findById(req.params.id);
+
+    if (!saree) {
+      return res.status(404).json({ success: false, message: 'Saree not found' });
+    }
+
+    await saree.deleteOne();
+
+    res.status(200).json({ success: true, data: {} });
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = {
   getSarees,
-  seedSarees
+  seedSarees,
+  createSaree,
+  updateSaree,
+  deleteSaree
 };

@@ -15,10 +15,12 @@ import { Route as TryOnIdRouteImport } from './routes/try-on.$id'
 import { Route as SuperadminDashboardRouteImport } from './routes/superadmin.dashboard'
 import { Route as SareeIdRouteImport } from './routes/saree.$id'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
+import { Route as AdminSareesRouteImport } from './routes/admin.sarees'
 import { Route as AdminResetPasswordRouteImport } from './routes/admin.reset-password'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminForgotPasswordRouteImport } from './routes/admin.forgot-password'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminCatalogsRouteImport } from './routes/admin.catalogs'
 
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
@@ -50,6 +52,11 @@ const ResultIdRoute = ResultIdRouteImport.update({
   path: '/result/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSareesRoute = AdminSareesRouteImport.update({
+  id: '/admin/sarees',
+  path: '/admin/sarees',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminResetPasswordRoute = AdminResetPasswordRouteImport.update({
   id: '/admin/reset-password',
   path: '/admin/reset-password',
@@ -70,14 +77,21 @@ const AdminDashboardRoute = AdminDashboardRouteImport.update({
   path: '/admin/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminCatalogsRoute = AdminCatalogsRouteImport.update({
+  id: '/admin/catalogs',
+  path: '/admin/catalogs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/history': typeof HistoryRoute
+  '/admin/catalogs': typeof AdminCatalogsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forgot-password': typeof AdminForgotPasswordRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/reset-password': typeof AdminResetPasswordRoute
+  '/admin/sarees': typeof AdminSareesRoute
   '/result/$id': typeof ResultIdRoute
   '/saree/$id': typeof SareeIdRoute
   '/superadmin/dashboard': typeof SuperadminDashboardRoute
@@ -86,10 +100,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/history': typeof HistoryRoute
+  '/admin/catalogs': typeof AdminCatalogsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forgot-password': typeof AdminForgotPasswordRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/reset-password': typeof AdminResetPasswordRoute
+  '/admin/sarees': typeof AdminSareesRoute
   '/result/$id': typeof ResultIdRoute
   '/saree/$id': typeof SareeIdRoute
   '/superadmin/dashboard': typeof SuperadminDashboardRoute
@@ -99,10 +115,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/history': typeof HistoryRoute
+  '/admin/catalogs': typeof AdminCatalogsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/forgot-password': typeof AdminForgotPasswordRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/reset-password': typeof AdminResetPasswordRoute
+  '/admin/sarees': typeof AdminSareesRoute
   '/result/$id': typeof ResultIdRoute
   '/saree/$id': typeof SareeIdRoute
   '/superadmin/dashboard': typeof SuperadminDashboardRoute
@@ -113,10 +131,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/history'
+    | '/admin/catalogs'
     | '/admin/dashboard'
     | '/admin/forgot-password'
     | '/admin/login'
     | '/admin/reset-password'
+    | '/admin/sarees'
     | '/result/$id'
     | '/saree/$id'
     | '/superadmin/dashboard'
@@ -125,10 +145,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/history'
+    | '/admin/catalogs'
     | '/admin/dashboard'
     | '/admin/forgot-password'
     | '/admin/login'
     | '/admin/reset-password'
+    | '/admin/sarees'
     | '/result/$id'
     | '/saree/$id'
     | '/superadmin/dashboard'
@@ -137,10 +159,12 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/history'
+    | '/admin/catalogs'
     | '/admin/dashboard'
     | '/admin/forgot-password'
     | '/admin/login'
     | '/admin/reset-password'
+    | '/admin/sarees'
     | '/result/$id'
     | '/saree/$id'
     | '/superadmin/dashboard'
@@ -150,10 +174,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HistoryRoute: typeof HistoryRoute
+  AdminCatalogsRoute: typeof AdminCatalogsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminForgotPasswordRoute: typeof AdminForgotPasswordRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminResetPasswordRoute: typeof AdminResetPasswordRoute
+  AdminSareesRoute: typeof AdminSareesRoute
   ResultIdRoute: typeof ResultIdRoute
   SareeIdRoute: typeof SareeIdRoute
   SuperadminDashboardRoute: typeof SuperadminDashboardRoute
@@ -204,6 +230,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResultIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/sarees': {
+      id: '/admin/sarees'
+      path: '/admin/sarees'
+      fullPath: '/admin/sarees'
+      preLoaderRoute: typeof AdminSareesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/reset-password': {
       id: '/admin/reset-password'
       path: '/admin/reset-password'
@@ -232,16 +265,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/catalogs': {
+      id: '/admin/catalogs'
+      path: '/admin/catalogs'
+      fullPath: '/admin/catalogs'
+      preLoaderRoute: typeof AdminCatalogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HistoryRoute: HistoryRoute,
+  AdminCatalogsRoute: AdminCatalogsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminForgotPasswordRoute: AdminForgotPasswordRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminResetPasswordRoute: AdminResetPasswordRoute,
+  AdminSareesRoute: AdminSareesRoute,
   ResultIdRoute: ResultIdRoute,
   SareeIdRoute: SareeIdRoute,
   SuperadminDashboardRoute: SuperadminDashboardRoute,

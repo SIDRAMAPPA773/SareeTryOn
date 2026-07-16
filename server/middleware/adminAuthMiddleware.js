@@ -42,7 +42,7 @@ const requireAuth = async (req, res, next) => {
 const requireAdmin = async (req, res, next) => {
   requireAuth(req, res, (err) => {
     if (err) return next(err);
-    if (req.admin.role !== 'ADMIN' && req.admin.role !== 'SUPERADMIN') {
+    if (req.admin.role !== 'ADMIN' && req.admin.role !== 'SUPERADMIN' && req.admin.role !== 'SUPER_ADMIN') {
       return res.status(403).json({
         success: false,
         message: 'Admin access required'
@@ -55,7 +55,7 @@ const requireAdmin = async (req, res, next) => {
 const requireSuperAdmin = async (req, res, next) => {
   requireAuth(req, res, (err) => {
     if (err) return next(err);
-    if (req.admin.role !== 'SUPERADMIN') {
+    if (req.admin.role !== 'SUPERADMIN' && req.admin.role !== 'SUPER_ADMIN') {
       return res.status(403).json({
         success: false,
         message: 'Super Admin access required'

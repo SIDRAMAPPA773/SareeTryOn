@@ -30,7 +30,7 @@ function SuperadminDashboard() {
         const response = await fetch(`${API_BASE_URL}/auth/me`, { credentials: 'include' });
         const data = await response.json();
         
-        if (data.success && data.admin.role === 'SUPERADMIN') {
+        if (data.success && (data.admin.role === 'SUPERADMIN' || data.admin.role === 'SUPER_ADMIN')) {
           setAdmin(data.admin);
           fetchAdmins();
         } else {

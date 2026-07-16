@@ -26,7 +26,7 @@ const createAdmin = async (req, res, next) => {
       username,
       email,
       password_hash,
-      role: role === 'SUPERADMIN' ? 'SUPERADMIN' : 'ADMIN'
+      role: role === 'SUPERADMIN' || role === 'SUPER_ADMIN' ? 'SUPERADMIN' : 'ADMIN'
     });
 
     res.status(201).json({
@@ -51,7 +51,7 @@ const createAdmin = async (req, res, next) => {
  */
 const getAdmins = async (req, res, next) => {
   try {
-    const admins = await AdminUser.find({ role: { $ne: 'SUPERADMIN' } })
+    const admins = await AdminUser.find({ role: { $nin: ['SUPERADMIN', 'SUPER_ADMIN'] } })
       .select('-password_hash')
       .sort({ createdAt: -1 });
 
@@ -79,7 +79,7 @@ const updateAdmin = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Admin not found' });
     }
     
-    if (admin.role === 'SUPERADMIN') {
+    if (admin.role === 'SUPERADMIN' || admin.role === 'SUPER_ADMIN') {
       return res.status(403).json({ success: false, message: 'Cannot modify another Superadmin' });
     }
 
@@ -116,7 +116,7 @@ const toggleAdminStatus = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Admin not found' });
     }
 
-    if (admin.role === 'SUPERADMIN') {
+    if (admin.role === 'SUPERADMIN' || admin.role === 'SUPER_ADMIN') {
       return res.status(403).json({ success: false, message: 'Cannot modify another Superadmin' });
     }
 
@@ -154,7 +154,7 @@ const resetAdminPassword = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Admin not found' });
     }
 
-    if (admin.role === 'SUPERADMIN') {
+    if (admin.role === 'SUPERADMIN' || admin.role === 'SUPER_ADMIN') {
       return res.status(403).json({ success: false, message: 'Cannot modify another Superadmin' });
     }
 
@@ -184,7 +184,7 @@ const deleteAdmin = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Admin not found' });
     }
 
-    if (admin.role === 'SUPERADMIN') {
+    if (admin.role === 'SUPERADMIN' || admin.role === 'SUPER_ADMIN') {
       return res.status(403).json({ success: false, message: 'Cannot delete another Superadmin' });
     }
 

@@ -170,7 +170,7 @@ const forgotPassword = async (req, res, next) => {
             'content-type': 'application/json'
           },
           body: JSON.stringify({
-            sender: { name: 'Virtual Couture', email: process.env.SMTP_USER || 'noreply@virtualcouture.com' },
+            sender: { name: 'Virtual Couture', email: process.env.BREVO_SENDER_EMAIL || process.env.SMTP_USER || 'noreply@virtualcouture.com' },
             to: [{ email: admin.email }],
             subject: 'Password Reset Request',
             htmlContent: `<html><body><p>You are receiving this email because you (or someone else) has requested the reset of a password.</p><p>Please click on the following link, or paste this into your browser to complete the process:</p><a href="${resetUrl}">${resetUrl}</a></body></html>`

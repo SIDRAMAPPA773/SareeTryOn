@@ -159,59 +159,20 @@ const forgotPassword = async (req, res, next) => {
     const message = `You are receiving this email because you (or someone else) has requested the reset of a password.\n\nPlease click on the following link, or paste this into your browser to complete the process:\n\n${resetUrl}`;
 
     try {
-      if (process.env.EMAILJS_SERVICE_ID && process.env.EMAILJS_TEMPLATE_ID && process.env.EMAILJS_PUBLIC_KEY && process.env.EMAILJS_PRIVATE_KEY) {
-        // Use EmailJS HTTP API to bypass Render SMTP blocking and avoid spam filters
-        console.log("Sending email via EmailJS HTTP API...");
-        const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            service_id: process.env.EMAILJS_SERVICE_ID,
-            template_id: process.env.EMAILJS_TEMPLATE_ID,
-            user_id: process.env.EMAILJS_PUBLIC_KEY,
-            accessToken: process.env.EMAILJS_PRIVATE_KEY,
-            template_params: {
-              to_email: admin.email,
-              reset_link: resetUrl
-            }
-          })
-        });
-
-        if (!response.ok) {
-          const errText = await response.text();
-          throw new Error('EmailJS API Error: ' + errText);
-        }
-
-        console.log("Message sent via EmailJS.");
-        return res.status(200).json({ success: true, message: 'Email sent' });
-      }
-
-      // Fallback to standard SMTP (nodemailer)
-      const transporter = await getTransporter();
-      
-      if (transporter) {
-        const info = await transporter.sendMail({
-          from: '"Virtual Couture Admin" <noreply@virtualcouture.com>',
-          to: admin.email,
-          subject: 'Password Reset Request',
-          text: message
-        });
-        console.log("Message sent via SMTP: %s", info.messageId);
-        return res.status(200).json({ success: true, message: 'Email sent' });
-      } else {
-        // No SMTP or Brevo configured.
-        console.error("No email service configured. Cannot send password reset email.");
-        return res.status(500).json({ success: false, message: 'Email server is not configured. Please contact the system administrator.' });
-      }
+      // Return the reset URL directly to the frontend for the kiosk environment
+      console.log("Kiosk Mode: Sending reset link directly to frontend");
+      return res.status(200).json({ 
+        success: true, 
+        message: 'Reset link generated successfully',
+        previewUrl: resetUrl 
+      });
 
     } catch (err) {
-      console.error("Email send error:", err);
+      console.error("Reset error:", err);
       admin.resetPasswordToken = undefined;
       admin.resetPasswordExpires = undefined;
       await admin.save();
-      return res.status(500).json({ success: false, message: err.message || 'Email could not be sent due to a server error.' });
+      return res.status(500).json({ success: false, message: err.message || 'An error occurred while generating the reset link.' });
     }
   } catch (error) {
     next(error);

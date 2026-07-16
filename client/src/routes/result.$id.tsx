@@ -148,25 +148,7 @@ function Result() {
     return false;
   }
 
-  async function openEmail() {
-    const to = emailTo.trim();
-    if (!to) {
-      toast.error("Please enter an email address.");
-      return;
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(to)) {
-      toast.error("Please enter a valid email address.");
-      return;
-    }
-    
-    // Simulate sending the email directly via backend
-    const loadingToast = toast.loading(`Sending email to ${to}...`);
-    setTimeout(() => {
-      toast.success("Email successfully sent!", { id: loadingToast });
-      setEmailTo("");
-    }, 1500);
-  }
+
 
   async function openWhatsApp() {
     if (!waPhone) {
@@ -179,12 +161,9 @@ function Result() {
       return;
     }
     
-    // Simulate sending the message directly via backend
-    const loadingToast = toast.loading(`Sending image to +${digits}...`);
-    setTimeout(() => {
-      toast.success("Image successfully sent to WhatsApp!", { id: loadingToast });
-      setWaPhone("");
-    }, 1500);
+    // Open actual WhatsApp deep link
+    window.open(`https://api.whatsapp.com/send?phone=${digits}&text=${encodeURIComponent(shareText + " " + shareUrl)}`, '_blank');
+    setWaPhone("");
   }
 
   async function openSMS() {
@@ -309,15 +288,7 @@ function Result() {
                   <h2 className="mt-2 font-serif text-3xl text-foreground text-shadow-light">Send it to someone who'd love it</h2>
 
                   <div className="mt-8 flex flex-col gap-3.5">
-                    <ShareRowWithInput
-                      icon={<Mail className="h-4 w-4" />}
-                      label="Email"
-                      hint="Recipient email"
-                      value={emailTo}
-                      onChange={setEmailTo}
-                      onClick={openEmail}
-                      cta="Send"
-                    />
+
 
                     <ShareRowWithInput
                       icon={<MessageCircle className="h-4 w-4" />}
@@ -375,7 +346,7 @@ function Result() {
               <div className="font-serif text-3xl">Your Try-On</div>
               <div className="rounded-2xl bg-white p-5 shadow-inner ring-1 ring-black/5">
                 <QRCodeSVG
-                  value={shareUrl + "?download=1"}
+                  value={resultSrc}
                   size={200}
                   bgColor="#ffffff"
                   fgColor="#2a0a10"

@@ -58,8 +58,18 @@ function ForgotPassword() {
           {isSent ? (
             <div className="text-center">
               <p className="text-sm text-gray-600 mb-6">
-                If an account exists for {email}, you will receive a password reset link shortly.
+                A password reset link has been generated successfully.
               </p>
+
+              {previewUrl && (
+                <div className="mb-6 rounded-lg bg-green-50 p-4 border border-green-200">
+                  <p className="text-sm font-semibold text-green-800 mb-2">Password Reset Link:</p>
+                  <a href={previewUrl} className="text-sm text-primary hover:underline break-all block" target="_blank" rel="noopener noreferrer">
+                    {previewUrl}
+                  </a>
+                  <p className="text-xs text-green-600 mt-2">Click this link to securely set a new password.</p>
+                </div>
+              )}
 
               <Link to="/admin/login" className="text-primary hover:underline font-medium">
                 Return to login
